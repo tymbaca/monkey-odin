@@ -13,30 +13,37 @@ Lexer :: struct {
 	allocator: mem.Allocator, // owns all token string literals
 }
 
-new :: proc(input: io.Reader, allocator := context.allocator) -> (l: Lexer, err: Error) {
+new :: proc(input: io.Reader, allocator := context.allocator) -> (l: Lexer) {
 	l = Lexer {
 		r         = input,
 		allocator = allocator,
 	}
 
-	step(&l) or_return
-	return l, nil
+	return l
 }
 
-read_all :: proc(l: ^Lexer) -> (result: []token.Token, err: Error) {
+read_all_tokens :: proc(l: ^Lexer) -> (result: []token.Token, err: Error) {
     toks := make([dynamic]token.Token, allocator = l.allocator)
     for {
         tok := next_token(l) or_return
         append(&toks, tok)
+        
+        if tok.type == .EOF {
+            break
+        }
     }
 
     return toks[:], nil
 }
 
 next_token :: proc(l: ^Lexer) -> (tok: token.Token, err: Error) {
-	defer if err == nil {
-		err = step(l)
-	}
+    err = step(l)
+    if err == .EOF {
+		return token.new(.EOF, 0), nil
+    }
+    if err != nil {
+        return token.Token{}, err
+    }
 
 	switch l.ch {
 	case '(':
@@ -55,8 +62,6 @@ next_token :: proc(l: ^Lexer) -> (tok: token.Token, err: Error) {
 		return token.new(.Comma, l.ch), nil
 	case ';':
 		return token.new(.Semicolon, l.ch), nil
-	case 0:
-		return token.new(.EOF, l.ch), nil
 	case:
 		return token.new(.Illegal, l.ch), nil
 	}
@@ -81,28 +86,27 @@ next_token_test :: proc(t: ^testing.T) {
 				{.RParen, ')'},
 				{.Comma, ','},
 				{.Semicolon, ';'},
+				{.EOF, 0},
 			},
 		},
 	}
 
 	for tt in tts {
 		misc.run_tt(t, tt.input, tt, proc(t: ^testing.T, tt: Test_Case) -> bool {
-			r := misc.string_to_stream(tt.input, context.allocator)
-			l, l_err := new(r, context.allocator)
-            testing.expect(t, l_err == nil) or_return
-            
+            defer free_all(context.allocator)
 
-            got, read_err := read_all(&l)
+			r := misc.string_to_stream(tt.input, context.allocator)
+			l := new(r, context.allocator)
+
+            got, read_err := read_all_tokens(&l)
             testing.expect(t, read_err == nil) or_return
-            
-            misc.expect_slice(t, got, tt.want)
+            misc.expect_slice(t, got, tt.want, log_values = true) or_return
             return true
 		})
 	}
 }
 
-
-
+// called just before reading a token
 step :: proc(l: ^Lexer) -> (err: Error) {
 	ch, _ := io.read_rune(l.r) or_return
     l.ch = ch
