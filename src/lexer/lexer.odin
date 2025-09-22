@@ -1,6 +1,5 @@
 package lexer
 
-import "core:strings"
 import "base:runtime"
 import "core:io"
 import "core:mem"
@@ -10,7 +9,7 @@ import "src:misc"
 import "src:token"
 
 Lexer :: struct {
-	ch:        string, // only 1 rune
+	ch:        rune,
 	pos:       int,
 	read_pos:  int,
 	input:     string,
@@ -42,28 +41,10 @@ read_all_tokens :: proc(l: ^Lexer) -> (result: []token.Token) {
 next_token :: proc(l: ^Lexer) -> (tok: token.Token) {
     skip_whitespace(l)
 
-	switch l.ch {
-	case '(':
-		tok = token.new(.LParen, l.ch)
-	case ')':
-		tok = token.new(.RParen, l.ch)
-	case '{':
-		tok = token.new(.LBrace, l.ch)
-	case '}':
-		tok = token.new(.RBrace, l.ch)
-	case '=':
-		tok = token.new(.Assign, l.ch)
-	case '+':
-		tok = token.new(.Plus, l.ch)
-	case ',':
-		tok = token.new(.Comma, l.ch)
-	case ';':
-		tok = token.new(.Semicolon, l.ch)
-	case ':':
-		tok = token.new(.Semicolon, l.ch)
-	case 0:
-		tok = token.new(.EOF, 0)
-	case:
+    if type, ok := token.from_rune[l.ch]; ok {
+        tok = token.new(type, l.ch)
+		step(l)
+    } else {
 		if is_letter(l.ch) {
             tok = read_multichar(l)
 		} else {
@@ -71,7 +52,6 @@ next_token :: proc(l: ^Lexer) -> (tok: token.Token) {
 		}
 	}
 
-	step(l)
 	return tok
 }
 
@@ -93,17 +73,13 @@ read_multichar :: proc(l: ^Lexer) -> (tok: token.Token) {
 
 // called just before reading a token
 step :: proc(l: ^Lexer) {
-    defer {
-        assert(l.pos <= len(l.input)+1)
-        assert(strings.rune_count(l.ch) == 1)
-    }
-
+	assert(l.pos <= len(l.input)+1)
 	if l.read_pos >= len(l.input) {
-		l.ch = 
+		l.ch = 0
 		l.pos = l.read_pos
 		return
 	} else {
-        l.ch = l.input[l.pos:l.read_pos]
+        l.ch = rune(l.input[l.read_pos]) // WARN: 
     }
 
     l.pos = l.read_pos
