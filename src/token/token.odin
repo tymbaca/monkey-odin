@@ -24,21 +24,34 @@ Token_Type :: enum {
 	Let,
 }
 
+token_type_to_string :: [Token_Type]string {
+	.Illegal = "ILLEGAL",
+	.EOF = "EOF",
+	.Ident = "IDENT",
+	.Int = "INT",
+	.Assign = "=",
+	.Plus = "+",
+	.Comma = ",",
+	.Semicolon = ";",
+	.LParen = "(",
+	.RParen = ")",
+	.LBrace = "{",
+	.RBrace = "}",
+	.Function = "fn",
+	.Let = "let",
+}
+
 keywords := map[string]Token_Type {
 	"fn"  = .Function,
 	"let" = .Let,
 }
 
+
 Token :: struct {
     type: Token_Type,
-    literal: Literal,
+    literal: string,
 }
 
-Literal :: union {
-    string,
-    rune,
-}
-
-new :: proc(type: Token_Type, literal: rune) -> Token {
+new :: proc(type: Token_Type, literal: string) -> Token {
     return Token{type = type, literal = literal}
 }

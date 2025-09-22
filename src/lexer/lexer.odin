@@ -1,5 +1,6 @@
 package lexer
 
+import "core:strings"
 import "base:runtime"
 import "core:io"
 import "core:mem"
@@ -9,7 +10,7 @@ import "src:misc"
 import "src:token"
 
 Lexer :: struct {
-	ch:        rune,
+	ch:        string, // only 1 rune
 	pos:       int,
 	read_pos:  int,
 	input:     string,
@@ -92,13 +93,17 @@ read_multichar :: proc(l: ^Lexer) -> (tok: token.Token) {
 
 // called just before reading a token
 step :: proc(l: ^Lexer) {
-	assert(l.pos <= len(l.input)+1)
+    defer {
+        assert(l.pos <= len(l.input)+1)
+        assert(strings.rune_count(l.ch) == 1)
+    }
+
 	if l.read_pos >= len(l.input) {
-		l.ch = 0
+		l.ch = 
 		l.pos = l.read_pos
 		return
 	} else {
-        l.ch = rune(l.input[l.read_pos]) // WARN: 
+        l.ch = l.input[l.pos:l.read_pos]
     }
 
     l.pos = l.read_pos
