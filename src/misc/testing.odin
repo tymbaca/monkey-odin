@@ -19,7 +19,7 @@ expect_slice :: proc(t: ^testing.T, values, expecteds: $T/[]$E, loc := #caller_l
     ok = true
 
     if len(values) != len(expecteds) {
-        log.errorf("different len: len(%v) == %d, len(%v) %d", values_expr, len(values), expecteds_expr, len(expecteds), location = loc)
+        log.errorf("different len: len(%v) == %d, len(%v) == %d", values_expr, len(values), expecteds_expr, len(expecteds), location = loc)
         ok = false
     }
 

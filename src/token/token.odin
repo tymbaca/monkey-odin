@@ -1,4 +1,5 @@
-package token
+#+feature dynamic-literals
+package token        
 
 import "base:builtin"
 Token_Type :: enum {
@@ -23,21 +24,9 @@ Token_Type :: enum {
 	Let,
 }
 
-token_type_to_string :: [Token_Type]string {
-	.Illegal = "ILLEGAL",
-	.EOF = "EOF",
-	.Ident = "IDENT",
-	.Int = "int",
-	.Assign = "=",
-	.Plus = "+",
-	.Comma = ",",
-	.Semicolon = ";",
-	.LParen = "(",
-	.RParen = ")",
-	.LBrace = "{",
-	.RBrace = "}",
-	.Function = "fn",
-	.Let = "let",
+keywords := map[string]Token_Type {
+	"fn"  = .Function,
+	"let" = .Let,
 }
 
 Token :: struct {

@@ -2,6 +2,7 @@ package lexer
 
 import "core:testing"
 import "src:misc"
+import "src:token"
 
 @(test)
 next_token_test :: proc(t: ^testing.T) {
@@ -12,7 +13,7 @@ next_token_test :: proc(t: ^testing.T) {
 
 	tts := []Test_Case {
 		{
-			input = "=+{}(),;",
+			input = "=\t+{} (),\n;\n\r",
 			want = {
 				{.Assign, '='},
 				{.Plus, '+'},
@@ -25,17 +26,43 @@ next_token_test :: proc(t: ^testing.T) {
 				{.EOF, 0},
 			},
 		},
+		{
+			input = "let num = fn;\n let double = num + num",
+			want = {
+				{.Let, "let"},
+				{.Ident, "num"},
+				{.Assign, '='},
+				{.Function, "fn"},
+				{.LBrace, '{'},
+				{.RBrace, '}'},
+				{.LParen, '('},
+				{.RParen, ')'},
+				{.Comma, ','},
+				{.Semicolon, ';'},
+				{.EOF, 0},
+			},
+		},
+		{
+			input = "",
+			want = {
+				{.EOF, 0},
+			},
+		},
+		{
+			input = "   \t \n\n\r \t",
+			want = {
+				{.EOF, 0},
+			},
+		},
 	}
 
 	for tt in tts {
 		misc.run_tt(t, tt.input, tt, proc(t: ^testing.T, tt: Test_Case) -> bool {
 			defer free_all(context.allocator)
 
-			r := misc.string_to_stream(tt.input, context.allocator)
-			l := new(r, context.allocator)
+			l := new(tt.input, context.allocator)
 
-			got, read_err := read_all_tokens(&l)
-			testing.expect(t, read_err == nil) or_return
+			got := read_all_tokens(&l)
 			misc.expect_slice(t, got, tt.want, log_values = true) or_return
 			return true
 		})
