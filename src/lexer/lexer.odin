@@ -1,5 +1,6 @@
 package lexer
 
+import "core:strings"
 import "base:runtime"
 import "core:io"
 import "core:mem"
@@ -42,17 +43,23 @@ next_token :: proc(l: ^Lexer) -> (tok: token.Token) {
     skip_whitespace(l)
 
     if type, ok := token.from_rune[l.ch]; ok {
+        switch type {
+        case .LT
+        }
+
         tok = token.new(type, l.ch)
 		step(l)
-    } else {
-		if is_letter(l.ch) {
-            tok = read_multichar(l)
-		} else {
-			tok = token.new(.Illegal, l.ch)
-		}
-	}
+        return tok
+    } 
+    if is_letter(l.ch) {
+        return read_multichar(l)
+    } 
+    if is_digit(l.ch) || l.ch == '.' {
+        return read_multidigit(l)
+    } 
 
-	return tok
+
+    return token.new(.Illegal, l.ch)
 }
 
 read_multichar :: proc(l: ^Lexer) -> (tok: token.Token) {
@@ -70,6 +77,36 @@ read_multichar :: proc(l: ^Lexer) -> (tok: token.Token) {
     }
 }
 
+read_multidigit :: proc(l: ^Lexer) -> (tok: token.Token) {
+    start := l.pos
+	for is_digit(l.ch) || l.ch == '.' {
+        step(l)
+	}
+    end := l.pos
+
+    literal := l.input[start:end]
+    
+    return token.Token{
+        type = multidigit_type(literal),
+        literal = literal,
+    }
+}
+
+multidigit_type :: proc(literal: string) -> (type: token.Token_Type) {
+    if strings.ends_with(literal, ".") {
+        return .Illegal
+    }
+
+    if dots := strings.count(literal, "."); dots > 0 {
+        if dots > 1 {
+            return .Illegal
+        }
+
+        return .Float
+    }
+
+    return .Int
+}
 
 // called just before reading a token
 step :: proc(l: ^Lexer) {
@@ -98,6 +135,10 @@ is_whitespace :: proc(ch: rune) -> bool {
 
 is_letter :: proc(ch: rune) -> bool {
 	return unicode.is_letter(ch)
+}
+
+is_digit :: proc(ch: rune) -> bool {
+	return unicode.is_digit(ch)
 }
 
 Error :: union {

@@ -8,9 +8,20 @@ Token_Type :: enum {
 
 	Ident,
 	Int,
+    Float,
 
 	Assign,
 	Plus,
+	Minus,
+	Slash,
+	Asteriks,
+    Equal,
+    Not_Equal,
+    LT,
+    LE,
+    GT,
+    GE,
+    Bang,
 
 	Comma,
 	Semicolon,
@@ -19,6 +30,7 @@ Token_Type :: enum {
 	RParen,
 	LBrace,
 	RBrace,
+
 
 	Function,
 	Let,
@@ -29,6 +41,16 @@ by_type := map[Token_Type]Token{
     .EOF = {.EOF, 0},
     .Assign = {.Assign, '='},
     .Plus = {.Plus, '+'},
+    .Minus = {.Minus, '-'},
+    .Slash = {.Slash, '/'},
+    .Asteriks = {.Asteriks, '*'},
+    .Equal = {.Equal, "=="},
+    .Not_Equal = {.Not_Equal, "!="},
+    .LT = {.LT, "<"},
+    .LE = {.LE, "<="},
+    .GT = {.GT, ">"},
+    .GE = {.GE, ">="},
+    .Bang = {.Bang, "!"},
     .Comma = {.Comma, ','},
     .Semicolon = {.Semicolon, ';'},
     .LParen = {.LParen, '('},
@@ -39,9 +61,14 @@ by_type := map[Token_Type]Token{
     .Let = {.Let, "let"},
 }
 
+
+
 from_rune := map[rune]Token_Type {
 	'=' = .Assign,
 	'+' = .Plus,
+    '<' = .LT,
+    '>' = .GT,
+    '!' = .Bang,
 	',' = .Comma,
 	';' = .Semicolon,
 	'(' = .LParen,

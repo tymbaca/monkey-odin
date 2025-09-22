@@ -27,19 +27,42 @@ next_token_test :: proc(t: ^testing.T) {
 			},
 		},
 		{
-			input = "let n = fn;\n let double = n + n",
+			input = "let n = 432;\n let num = 56.387 + n; num = num + 5;",
 			want = {
                 token.by_type[.Let],
 				{.Ident, "n"},
                 token.by_type[.Assign],
-                token.by_type[.Function],
+                {.Int, "432"},
                 token.by_type[.Semicolon],
+                
                 token.by_type[.Let],
-				{.Ident, "double"},
+				{.Ident, "num"},
                 token.by_type[.Assign],
-				{.Ident, "n"},
+				{.Float, "56.387"},
                 token.by_type[.Plus],
 				{.Ident, "n"},
+                token.by_type[.Semicolon],
+
+				{.Ident, "num"},
+                token.by_type[.Assign],
+				{.Ident, "num"},
+                token.by_type[.Plus],
+				{.Int, "5"},
+                token.by_type[.Semicolon],
+
+                token.by_type[.EOF],
+			},
+		},
+		{
+			input = ".3, .190, 1.9, 99.999",
+			want = {
+                {.Float, ".3"},
+                token.by_type[.Comma],
+                {.Float, ".190"},
+                token.by_type[.Comma],
+                {.Float, "1.9"},
+                token.by_type[.Comma],
+                {.Float, "99.999"},
                 token.by_type[.EOF],
 			},
 		},
@@ -66,6 +89,6 @@ next_token_test :: proc(t: ^testing.T) {
 			got := read_all_tokens(&l)
 			misc.expect_slice(t, got, tt.want, log_values = true) or_return
 			return true
-		})
+		}) or_break
 	}
 }
