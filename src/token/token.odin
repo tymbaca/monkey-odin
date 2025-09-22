@@ -6,10 +6,6 @@ Token_Type :: enum {
 	Illegal,
 	EOF,
 
-	Ident,
-	Int,
-    Float,
-
 	Assign,
 	Plus,
 	Minus,
@@ -22,6 +18,7 @@ Token_Type :: enum {
     GT,
     GE,
     Bang,
+    Rem,
 
 	Comma,
 	Semicolon,
@@ -31,13 +28,26 @@ Token_Type :: enum {
 	LBrace,
 	RBrace,
 
+    // dynamic literals
+	Ident,
+	Int,
+    Float,
 
 	Function,
 	Let,
+    If,
+    Else,
+    True,
+    False,
+    Return,
 }
 
-// only token types that can have one literal
-by_type := map[Token_Type]Token{
+by_type := [Token_Type]Token{
+    .Illegal = {.Illegal, "ILLEGAL"},
+    .Ident = {.Ident, "IDENT"},
+    .Int = {.Int, "INT"},
+    .Float = {.Float, "FLOAT"},
+
     .EOF = {.EOF, 0},
     .Assign = {.Assign, '='},
     .Plus = {.Plus, '+'},
@@ -46,41 +56,38 @@ by_type := map[Token_Type]Token{
     .Asteriks = {.Asteriks, '*'},
     .Equal = {.Equal, "=="},
     .Not_Equal = {.Not_Equal, "!="},
-    .LT = {.LT, "<"},
+    .LT = {.LT, '<'},
     .LE = {.LE, "<="},
-    .GT = {.GT, ">"},
+    .GT = {.GT, '>'},
     .GE = {.GE, ">="},
-    .Bang = {.Bang, "!"},
+    .Bang = {.Bang, '!'},
+    .Rem = {.Rem, '%'},
+
     .Comma = {.Comma, ','},
     .Semicolon = {.Semicolon, ';'},
     .LParen = {.LParen, '('},
     .RParen = {.RParen, ')'},
     .LBrace = {.LBrace, '{'},
     .RBrace = {.RBrace, '}'},
+
     .Function = {.Function, "fn"},
     .Let = {.Let, "let"},
+    .If = {.If, "if"},
+    .Else = {.Else, "else"},
+    .True = {.True, "true"},
+    .False = {.False, "false"},
+    .Return = {.Return, "return"},
 }
 
-
-
-from_rune := map[rune]Token_Type {
-	'=' = .Assign,
-	'+' = .Plus,
-    '<' = .LT,
-    '>' = .GT,
-    '!' = .Bang,
-	',' = .Comma,
-	';' = .Semicolon,
-	'(' = .LParen,
-	')' = .RParen,
-	'{' = .LBrace,
-	'}' = .RBrace,
-    0   = .EOF,
-}
 
 keywords := map[string]Token_Type {
 	"fn"  = .Function,
 	"let" = .Let,
+    "if" = .If,
+    "else" = .Else,
+    "true" = .True,
+    "false" = .False,
+    "return" = .Return,
 }
 
 Token :: struct {
@@ -93,6 +100,6 @@ Literal :: union {
     rune,
 }
 
-new :: proc(type: Token_Type, literal: rune) -> Token {
+new :: proc(type: Token_Type, literal: Literal) -> Token {
     return Token{type = type, literal = literal}
 }

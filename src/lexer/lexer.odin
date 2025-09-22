@@ -42,29 +42,78 @@ read_all_tokens :: proc(l: ^Lexer) -> (result: []token.Token) {
 next_token :: proc(l: ^Lexer) -> (tok: token.Token) {
     skip_whitespace(l)
 
-    if type, ok := token.from_rune[l.ch]; ok {
-        switch type {
-        case .LT
+
+    switch l.ch {
+    case '=':
+        if peek(l) == '=' {
+            step(l)
+            tok = token.new(.Equal, "==")
+        } else {
+            tok = token.new(.Assign, l.ch)
         }
+    case '+':
+        tok = token.new(.Plus, l.ch)
+    case '-':
+        tok = token.new(.Minus, l.ch)
+    case '*':
+        tok = token.new(.Asteriks, l.ch)
+    case '/':
+        tok = token.new(.Slash, l.ch)
+    case '<':
+        if peek(l) == '=' {
+            step(l)
+            tok = token.new(.LE, "<=")
+        } else {
+            tok = token.new(.LT, l.ch)
+        }
+    case '>':
+        if peek(l) == '=' {
+            step(l)
+            tok = token.new(.GE, ">=")
+        } else {
+            tok = token.new(.GT, l.ch)
+        }
+    case '!':
+        if peek(l) == '=' {
+            step(l)
+            tok = token.new(.Not_Equal, "!=")
+        } else {
+            tok = token.new(.Bang, l.ch)
+        }
+    case '%':
+        tok = token.new(.Rem, l.ch)
+    case ',':
+        tok = token.new(.Comma, l.ch)
+    case ';':
+        tok = token.new(.Semicolon, l.ch)
+    case '(':
+        tok = token.new(.LParen, l.ch)
+    case ')':
+        tok = token.new(.RParen, l.ch)
+    case '{':
+        tok = token.new(.LBrace, l.ch)
+    case '}':
+        tok = token.new(.RBrace, l.ch)
+    case 0:
+        tok = token.new(.EOF, l.ch)
+    case:
+        if is_letter(l.ch) {
+            return read_multichar(l)
+        } 
+        if is_digit(l.ch) || l.ch == '.' {
+            return read_multidigit(l)
+        } 
 
-        tok = token.new(type, l.ch)
-		step(l)
-        return tok
-    } 
-    if is_letter(l.ch) {
-        return read_multichar(l)
-    } 
-    if is_digit(l.ch) || l.ch == '.' {
-        return read_multidigit(l)
-    } 
+        tok = token.new(.Illegal, l.ch)
+    }
 
-
-    return token.new(.Illegal, l.ch)
+    step(l)
+    return tok
 }
 
 read_multichar :: proc(l: ^Lexer) -> (tok: token.Token) {
     start := l.pos
-	for is_letter(l.ch) {
+	for is_letter(l.ch) || is_digit(l.ch) {
         step(l)
 	}
     end := l.pos
@@ -121,6 +170,11 @@ step :: proc(l: ^Lexer) {
 
     l.pos = l.read_pos
     l.read_pos += 1
+}
+
+// it's like step, but it only shows next char, whithout actually advancing
+peek :: proc(l: ^Lexer) -> rune {
+    return rune(l.input[l.read_pos])
 }
 
 skip_whitespace :: proc(l: ^Lexer) {

@@ -13,7 +13,73 @@ next_token_test :: proc(t: ^testing.T) {
 
 	tts := []Test_Case {
 		{
-			input = "=\t+{} (),\n;\n\r",
+			input = `
+                fn add(n1, n2) {
+                    return n1 + n2;
+                }`,
+			want = {
+				token.by_type[.Function],
+                {.Ident, "add"},
+				token.by_type[.LParen],
+                {.Ident, "n1"},
+				token.by_type[.Comma],
+                {.Ident, "n2"},
+				token.by_type[.RParen],
+
+				token.by_type[.LBrace],
+				token.by_type[.Return],
+                {.Ident, "n1"},
+				token.by_type[.Plus],
+                {.Ident, "n2"},
+				token.by_type[.Semicolon],
+				token.by_type[.RBrace],
+				{.EOF, 0},
+			},
+		},
+        {
+            input = `
+                fn isEven(n) {
+                    if n % 2 == 0 {
+                        return true;
+                    } else {
+                        return false;
+                    }
+                }`,
+            want = {
+				token.by_type[.Function],
+                {.Ident, "isEven"},
+				token.by_type[.LParen],
+                {.Ident, "n"},
+				token.by_type[.RParen],
+
+                token.by_type[.LBrace],
+
+                token.by_type[.If],
+                {.Ident, "n"},
+                token.by_type[.Rem],
+                {.Int, "2"},
+                token.by_type[.Equal],
+                {.Int, "0"},
+                token.by_type[.LBrace],
+                token.by_type[.Return],
+                token.by_type[.True],
+                token.by_type[.Semicolon],
+                token.by_type[.RBrace],
+
+                token.by_type[.Else],
+                token.by_type[.LBrace],
+                token.by_type[.Return],
+                token.by_type[.False],
+                token.by_type[.Semicolon],
+                token.by_type[.RBrace],
+
+                token.by_type[.RBrace],
+
+                token.by_type[.EOF],
+            },
+        },
+		{
+			input = "=\t+{} (),\n;\n\r < <= > >= ! != ==",
 			want = {
                 token.by_type[.Assign],
 				token.by_type[.Plus],
@@ -22,7 +88,16 @@ next_token_test :: proc(t: ^testing.T) {
 				token.by_type[.LParen],
 				token.by_type[.RParen],
 				token.by_type[.Comma],
-				token.by_type[.Semicolon],
+				token.by_type[.Semicolon],             
+
+                token.by_type[.LT],
+                token.by_type[.LE],
+                token.by_type[.GT],
+                token.by_type[.GE],
+                token.by_type[.Bang],
+                token.by_type[.Not_Equal],
+                token.by_type[.Equal],
+
 				token.by_type[.EOF],
 			},
 		},
