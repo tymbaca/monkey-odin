@@ -174,6 +174,10 @@ step :: proc(l: ^Lexer) {
 
 // it's like step, but it only shows next char, whithout actually advancing
 peek :: proc(l: ^Lexer) -> rune {
+    if l.read_pos >= len(l.input) {
+        return 0
+    }
+
     return rune(l.input[l.read_pos])
 }
 

@@ -79,7 +79,7 @@ next_token_test :: proc(t: ^testing.T) {
             },
         },
 		{
-			input = "=\t+{} (),\n;\n\r < <= > >= ! != ==",
+			input = "=\t+{} (),\n;\n\r < <= > >= ! != == =", // last '=' to check if peek will go out of bounds
 			want = {
                 token.by_type[.Assign],
 				token.by_type[.Plus],
@@ -97,6 +97,8 @@ next_token_test :: proc(t: ^testing.T) {
                 token.by_type[.Bang],
                 token.by_type[.Not_Equal],
                 token.by_type[.Equal],
+
+                token.by_type[.Assign],
 
 				token.by_type[.EOF],
 			},
