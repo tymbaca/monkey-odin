@@ -1,6 +1,7 @@
 package parser
 
 import "core:dynlib"
+
 Program :: struct {
 	stmts: [dynamic]Statement,
 }
@@ -11,7 +12,6 @@ Expression :: union {
 }
 
 Statement :: union {
-	// If,
 	Let,
 }
 
@@ -22,12 +22,6 @@ Identifier :: struct {
 Int_Literal :: struct {
 	val: int,
 }
-
-// If :: struct {
-//     cond: Expression,
-//     body: ^Statement,
-//     alt: Maybe(^Statement),
-// }
 
 Let :: struct {
 	name: Identifier,
