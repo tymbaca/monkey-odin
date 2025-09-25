@@ -31,15 +31,19 @@ read_all_tokens :: proc(l: ^Lexer) -> (result: []token.Token) {
 	toks := make([dynamic]token.Token, allocator = l.allocator)
 	tok: token.Token
 
-	for tok.type != .EOF { 
-		tok = next_token(l)
+	for { 
+		tok = read_token(l)
+        if tok.type == .EOF {
+            break
+        }
+
 		append(&toks, tok)
 	}
 
 	return toks[:]
 }
 
-next_token :: proc(l: ^Lexer) -> (tok: token.Token) {
+read_token :: proc(l: ^Lexer) -> (tok: token.Token) {
     skip_whitespace(l)
 
 
@@ -111,6 +115,7 @@ next_token :: proc(l: ^Lexer) -> (tok: token.Token) {
     return tok
 }
 
+@(private)
 read_multichar :: proc(l: ^Lexer) -> (tok: token.Token) {
     start := l.pos
 	for is_letter(l.ch) || is_digit(l.ch) {
@@ -126,6 +131,7 @@ read_multichar :: proc(l: ^Lexer) -> (tok: token.Token) {
     }
 }
 
+@(private)
 read_multidigit :: proc(l: ^Lexer) -> (tok: token.Token) {
     start := l.pos
 	for is_digit(l.ch) || l.ch == '.' {
@@ -141,6 +147,8 @@ read_multidigit :: proc(l: ^Lexer) -> (tok: token.Token) {
     }
 }
 
+
+@(private)
 multidigit_type :: proc(literal: string) -> (type: token.Token_Type) {
     if strings.ends_with(literal, ".") {
         return .Illegal
@@ -158,6 +166,7 @@ multidigit_type :: proc(literal: string) -> (type: token.Token_Type) {
 }
 
 // called just before reading a token
+@(private)
 step :: proc(l: ^Lexer) {
 	assert(l.pos <= len(l.input)+1)
 	if l.read_pos >= len(l.input) {
@@ -173,6 +182,7 @@ step :: proc(l: ^Lexer) {
 }
 
 // it's like step, but it only shows next char, whithout actually advancing
+@(private)
 peek :: proc(l: ^Lexer) -> rune {
     if l.read_pos >= len(l.input) {
         return 0
@@ -181,20 +191,24 @@ peek :: proc(l: ^Lexer) -> rune {
     return rune(l.input[l.read_pos])
 }
 
+@(private)
 skip_whitespace :: proc(l: ^Lexer) {
     for is_whitespace(l.ch) {
         step(l)
     }
 }
 
+@(private)
 is_whitespace :: proc(ch: rune) -> bool {
 	return unicode.is_white_space(ch)
 }
 
+@(private)
 is_letter :: proc(ch: rune) -> bool {
 	return unicode.is_letter(ch)
 }
 
+@(private)
 is_digit :: proc(ch: rune) -> bool {
 	return unicode.is_digit(ch)
 }

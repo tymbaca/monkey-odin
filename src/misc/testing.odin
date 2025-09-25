@@ -34,7 +34,7 @@ expect_slice :: proc(t: ^testing.T, values, expecteds: $T/[]$E, loc := #caller_l
 
     if !ok {
         if log_values {
-            log.errorf("\n\texpected (%v) values: %v, \n\tgot (%v) values %v", expecteds_expr, expecteds, values_expr, values, location = loc)
+            log.errorf("expected (%v) values: %#v, got (%v) values %#v", expecteds_expr, expecteds, values_expr, values, location = loc)
         }
         return false
     }

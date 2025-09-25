@@ -33,7 +33,6 @@ next_token_test :: proc(t: ^testing.T) {
                 {.Ident, "n2"},
 				token.by_type[.Semicolon],
 				token.by_type[.RBrace],
-				{.EOF, 0},
 			},
 		},
         {
@@ -74,8 +73,6 @@ next_token_test :: proc(t: ^testing.T) {
                 token.by_type[.RBrace],
 
                 token.by_type[.RBrace],
-
-                token.by_type[.EOF],
             },
         },
 		{
@@ -99,8 +96,6 @@ next_token_test :: proc(t: ^testing.T) {
                 token.by_type[.Equal],
 
                 token.by_type[.Assign],
-
-				token.by_type[.EOF],
 			},
 		},
 		{
@@ -126,8 +121,6 @@ next_token_test :: proc(t: ^testing.T) {
                 token.by_type[.Plus],
 				{.Int, "5"},
                 token.by_type[.Semicolon],
-
-                token.by_type[.EOF],
 			},
 		},
 		{
@@ -140,19 +133,16 @@ next_token_test :: proc(t: ^testing.T) {
                 {.Float, "1.9"},
                 token.by_type[.Comma],
                 {.Float, "99.999"},
-                token.by_type[.EOF],
 			},
 		},
 		{
 			input = "",
 			want = {
-				{.EOF, 0},
 			},
 		},
 		{
 			input = "   \t \n\n\r \t",
 			want = {
-				{.EOF, 0},
 			},
 		},
 	}
