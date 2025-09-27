@@ -7,10 +7,14 @@ Token_Type :: enum {
 	EOF,
 
 	Assign,
+    START_OPERATOR,
+    // int/float
 	Plus,
 	Minus,
-	Slash,
 	Asteriks,
+	Slash,
+    Rem,
+    // bool
     Equal,
     Not_Equal,
     LT,
@@ -18,7 +22,7 @@ Token_Type :: enum {
     GT,
     GE,
     Bang,
-    Rem,
+    END_OPERATOR,
 
 	Comma,
 	Semicolon,
@@ -92,7 +96,7 @@ keywords := map[string]Token_Type {
 
 Token :: struct {
     type: Token_Type,
-    literal: Literal,
+    literal: Literal, // maybe make only string
 }
 
 Literal :: union {
@@ -102,4 +106,17 @@ Literal :: union {
 
 new :: proc(type: Token_Type, literal: Literal) -> Token {
     return Token{type = type, literal = literal}
+}
+
+is_operator :: proc(type: Token_Type) -> bool {
+    return type > Token_Type.START_OPERATOR && type < Token_Type.END_OPERATOR
+}
+
+is_arithm_operator :: proc(type: Token_Type) -> bool {
+    #partial switch type {
+    case .Plus, .Minus, .Asteriks, .Slash:
+        return true
+    }
+
+    return false
 }

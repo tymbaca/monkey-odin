@@ -13,6 +13,7 @@ Expression :: union {
 
 Statement :: union {
 	Let,
+    Return,
 }
 
 Identifier :: struct {
@@ -23,7 +24,21 @@ Int_Literal :: struct {
 	val: int,
 }
 
+Infix_Operator :: struct {
+    op: string,
+    left, right: Expression,
+}
+
+Prefix_Operator :: struct {
+    op: string,
+    right: Expression,
+}
+
 Let :: struct {
 	name: Identifier,
+	val:  Expression,
+}
+
+Return :: struct {
 	val:  Expression,
 }
